@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌻 Happy Farm</title>
+<title>🌾 Farm Economics Simulator</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -16,6 +16,8 @@
   --panel: rgba(255,255,255,0.92);
   --text: #3A2010;
   --green: #2E7D32;
+  --cost: #E53935;
+  --profit: #2E7D32;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -35,7 +37,7 @@ body {
 }
 @keyframes sunPulse { 0%,100%{box-shadow:0 0 30px 10px rgba(255,220,0,0.35)} 50%{box-shadow:0 0 50px 20px rgba(255,220,0,0.55)} }
 .sun-ray { position: absolute; width: 8px; height: 22px; background: #FFE44D; border-radius: 4px; left: 50%; transform-origin: bottom center; }
-#app { max-width: 900px; margin: 0 auto; padding: 12px 12px 40px; position: relative; z-index: 2; }
+#app { max-width: 1000px; margin: 0 auto; padding: 12px 12px 40px; position: relative; z-index: 2; }
 .hdr {
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
   background: rgba(255,255,255,0.88); backdrop-filter: blur(8px);
@@ -54,7 +56,6 @@ body {
 }
 .stat-pill.bump { animation: statBump 0.4s ease; }
 @keyframes statBump { 0%,100%{transform:scale(1)} 40%{transform:scale(1.25)} }
-/* Audio toggle */
 .audio-btn {
   width: 36px; height: 36px; border-radius: 50%; border: 2px solid #C8E6C9;
   background: #E8F5E9; cursor: pointer; font-size: 18px; display: flex;
@@ -87,7 +88,7 @@ body {
 .tool-btn.day-btn { background: linear-gradient(135deg, #3949AB, #5E35B1); color: white; border-color: #283593; margin-left: auto; }
 .tool-btn.day-btn:hover { box-shadow: 0 4px 18px rgba(57,73,171,0.4); }
 .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-@media(max-width:600px){ .main-grid { grid-template-columns: 1fr; } }
+@media(max-width:800px){ .main-grid { grid-template-columns: 1fr; } }
 .panel {
   background: rgba(255,255,255,0.88); backdrop-filter: blur(6px);
   border-radius: 22px; padding: 14px; border: 2.5px solid rgba(255,255,255,0.95);
@@ -117,27 +118,35 @@ body {
 .plot-label { font-size:8px; color:rgba(255,255,255,0.85); font-weight:800; text-shadow:0 1px 2px rgba(0,0,0,0.5); letter-spacing:0.3px; }
 .plot-bar-wrap { width:80%; height:5px; background:rgba(255,255,255,0.25); border-radius:3px; margin-top:3px; overflow:hidden; }
 .plot-bar { height:100%; border-radius:3px; background:#76FF03; transition:width 0.5s; }
+.plot-cost { font-size:9px; color:#FFE082; font-weight:800; margin-top:2px; }
 .plot-ready-glow { animation: readyGlow 1.2s ease-in-out infinite; }
 @keyframes readyGlow { 0%,100%{box-shadow:0 0 6px 2px rgba(255,220,0,0.5),inset 0 0 8px rgba(255,220,0,0.2)} 50%{box-shadow:0 0 18px 6px rgba(255,220,0,0.85),inset 0 0 14px rgba(255,220,0,0.35)} }
 .water-drops { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
 .water-drop { position:absolute; width:6px; height:8px; background:#42A5F5; border-radius:50% 50% 50% 50%/40% 40% 60% 60%; animation:dropFall 0.6s ease-in forwards; }
 @keyframes dropFall { 0%{transform:translateY(-10px);opacity:1} 100%{transform:translateY(30px);opacity:0} }
-.animal-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-.animal-card {
-  background:linear-gradient(160deg,#F1F8E9,#DCEDC8); border-radius:16px; padding:10px 6px;
-  text-align:center; cursor:pointer; border:2.5px solid #AED581; transition:all 0.18s; position:relative; overflow:hidden;
+.economics-panel {
+  background: linear-gradient(135deg, rgba(255,250,205,0.95), rgba(255,245,157,0.95));
+  border-radius: 18px; padding: 12px; border: 2.5px solid #FFD54F;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1); margin-bottom: 12px;
 }
-.animal-card:hover { transform:translateY(-4px) scale(1.05); box-shadow:0 8px 24px rgba(0,0,0,0.15); border-color:#7CB342; }
-.animal-card:active { transform:scale(0.95); }
-.animal-card.ready { border-color:#FFD600; background:linear-gradient(160deg,#FFFDE7,#FFF9C4); animation:cardPulse 1.4s ease-in-out infinite; }
-@keyframes cardPulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,214,0,0.4)} 60%{box-shadow:0 0 0 8px rgba(255,214,0,0)} }
-.animal-em { font-size:36px; display:block; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.15)); transition:transform 0.3s; }
-.animal-card:hover .animal-em { transform:rotate(-8deg) scale(1.1); }
-.animal-nm { font-size:11px; font-weight:800; color:#2E7D32; }
-.animal-status { font-size:10px; font-weight:700; color:#5D4037; margin-top:2px; }
-.animal-bar-wrap { width:80%; height:5px; background:rgba(0,0,0,0.12); border-radius:3px; margin:4px auto 0; overflow:hidden; }
-.animal-bar { height:100%; border-radius:3px; background:#8BC34A; transition:width 0.5s; }
-.empty-animal { color:#9E9E9E; font-size:12px; text-align:center; padding:20px; grid-column:1/-1; }
+.econ-title { font-family: 'Fredoka One', cursive; font-size: 15px; color: #E65100; margin-bottom: 8px; }
+.econ-item { display: flex; justify-content: space-between; font-size: 12px; margin: 4px 0; font-weight: 700; }
+.econ-label { color: #5D4037; }
+.econ-value { color: #E65100; }
+.econ-value.profit { color: var(--profit); }
+.econ-value.cost { color: var(--cost); }
+.crop-detail {
+  background: rgba(255,255,255,0.9); border-radius: 14px; padding: 10px;
+  border: 2px solid #FFE082; margin: 8px 0; font-size: 12px;
+}
+.crop-detail-row { display: flex; justify-content: space-between; margin: 3px 0; font-weight: 600; }
+.crop-detail-label { color: #5D4037; }
+.crop-detail-value { color: #E65100; font-weight: 800; }
+.learn-box {
+  background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+  border-radius: 14px; padding: 10px; border-left: 4px solid #2196F3;
+  margin: 8px 0; font-size: 12px; color: #1565C0; font-weight: 600;
+}
 .shop-full { background:rgba(255,255,255,0.88); border-radius:22px; padding:14px; border:2.5px solid rgba(255,255,255,0.95); box-shadow:0 4px 20px rgba(0,0,0,0.1); margin-bottom:12px; }
 .shop-tabs { display:flex; gap:8px; margin-bottom:12px; }
 .shop-tab {
@@ -157,19 +166,9 @@ body {
 .shop-item:hover .si-em { transform:scale(1.2) rotate(5deg); }
 .shop-item .si-name { font-size:11px; font-weight:800; color:#4E342E; margin-top:3px; }
 .shop-item .si-cost { font-size:12px; font-weight:800; color:#E65100; }
+.shop-item .si-profit { font-size:11px; font-weight:700; color:#2E7D32; margin-top:2px; }
 .shop-item.cant-afford { opacity:0.5; cursor:not-allowed; }
 .shop-item.cant-afford:hover { transform:none; box-shadow:none; }
-.world-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:12px; }
-.world-panel {
-  background:rgba(255,255,255,0.88); border-radius:22px; padding:14px;
-  border:2.5px solid rgba(255,255,255,0.95); box-shadow:0 4px 20px rgba(0,0,0,0.1);
-  text-align:center; cursor:pointer; transition:all 0.2s;
-}
-.world-panel:hover { transform:translateY(-4px); box-shadow:0 8px 28px rgba(0,0,0,0.15); }
-.world-em { font-size:44px; display:block; transition:transform 0.3s; }
-.world-panel:hover .world-em { transform:scale(1.15) rotate(-5deg); }
-.world-nm { font-family:'Fredoka One',cursive; font-size:15px; color:var(--text); }
-.world-desc { font-size:11px; color:#757575; margin-top:3px; }
 .coin-pop {
   position:fixed; font-size:22px; font-weight:900; color:#FFD600;
   pointer-events:none; z-index:9999; text-shadow:0 2px 8px rgba(0,0,0,0.4);
@@ -193,7 +192,6 @@ body {
 @keyframes notifOut { to{transform:translateX(120px);opacity:0} }
 .star { position:fixed; pointer-events:none; z-index:9998; font-size:20px; animation:starBurst 0.8s ease-out forwards; }
 @keyframes starBurst { 0%{transform:scale(0) rotate(0deg);opacity:1} 100%{transform:scale(1.5) rotate(180deg) translate(var(--tx),var(--ty));opacity:0} }
-/* Rain overlay */
 .rain-overlay { position:fixed; inset:0; pointer-events:none; z-index:3; }
 .raindrop { position:absolute; width:2px; background:linear-gradient(180deg,transparent,#90CAF9); border-radius:1px; animation:rainFall linear infinite; }
 @keyframes rainFall { from{transform:translateY(-20px)} to{transform:translateY(110vh)} }
@@ -207,13 +205,13 @@ body {
 
 <div id="app">
   <div class="hdr">
-    <div class="hdr-title">🌻 Happy <span>Farm!</span></div>
+    <div class="hdr-title">🌾 Farm <span>Economics</span></div>
     <div class="hdr-right">
       <div class="stats">
-        <div class="stat-pill" id="stat-coins">🪙 <span id="coins">30</span></div>
-        <div class="stat-pill" id="stat-score">⭐ <span id="score">0</span></div>
+        <div class="stat-pill" id="stat-budget">💰 Budget: <span id="budget">100</span></div>
+        <div class="stat-pill" id="stat-profit">📈 Profit: <span id="profit">0</span></div>
         <div class="stat-pill" id="stat-day">📅 Day <span id="day">1</span></div>
-        <div class="stat-pill" id="stat-lvl">🏅 Lv <span id="level">1</span></div>
+        <div class="stat-pill" id="stat-harvest">🌾 Harvested: <span id="harvests">0</span></div>
       </div>
       <button class="audio-btn" id="audioBtn" onclick="toggleAudio()" title="Toggle sound">🔊</button>
     </div>
@@ -221,54 +219,54 @@ body {
 
   <div class="weather-bar" id="weatherBar">
     ☀️ <strong>Sunny day!</strong> — Perfect for farming!
-    <span style="margin-left:auto;font-size:12px;color:#888">Tool: <strong id="toolLabel">SEED</strong></span>
+    <span style="margin-left:auto;font-size:12px;color:#888">Planting cost affects your profit!</span>
   </div>
 
-  <div class="msgbox" id="msgbox">👋 Welcome to Happy Farm! Select a crop from the shop, then click the soil to plant it!</div>
+  <div class="msgbox" id="msgbox">👋 Welcome to Farm Economics! Learn how real farms work. Plant crops wisely to maximize your profit!</div>
+
+  <div class="economics-panel" id="economicsPanel">
+    <div class="econ-title">📊 Farm Economics</div>
+    <div class="econ-item">
+      <span class="econ-label">Total Investment:</span>
+      <span class="econ-value cost" id="totalInvestment">0</span>
+    </div>
+    <div class="econ-item">
+      <span class="econ-label">Total Revenue:</span>
+      <span class="econ-value profit" id="totalRevenue">0</span>
+    </div>
+    <div class="econ-item">
+      <span class="econ-label">Net Profit:</span>
+      <span class="econ-value profit" id="netProfit">0</span>
+    </div>
+    <div class="learn-box">💡 <strong>Tip:</strong> The difference between revenue and investment is your profit! Choose crops with better profit margins.</div>
+  </div>
 
   <div class="tools" id="toolbar">
-    <button class="tool-btn active" id="tb-seed" onclick="setTool('seed')">🌱 Plant</button>
+    <button class="tool-btn active" id="tb-plant" onclick="setTool('plant')">🌱 Plant</button>
     <button class="tool-btn" id="tb-water" onclick="setTool('water')">💧 Water</button>
     <button class="tool-btn" id="tb-harvest" onclick="setTool('harvest')">🌾 Harvest</button>
-    <button class="tool-btn" id="tb-plow" onclick="setTool('plow')">⛏️ Plow</button>
-    <button class="tool-btn day-btn" onclick="nextDay()">🌙 Sleep (Next Day)</button>
+    <button class="tool-btn day-btn" onclick="nextDay()">🌙 End Day</button>
   </div>
 
   <div class="main-grid">
     <div class="panel">
-      <div class="panel-title">🌱 Farm Plots <span style="font-size:12px;font-weight:600;color:#888;margin-left:4px">click to interact</span></div>
+      <div class="panel-title">🌾 Farm Plots <span style="font-size:12px;font-weight:600;color:#888;margin-left:4px">click to interact</span></div>
       <div class="plots-wrap" id="plotGrid"></div>
     </div>
     <div class="panel">
-      <div class="panel-title">🐾 My Animals <span style="font-size:12px;font-weight:600;color:#888;margin-left:4px">click to collect</span></div>
-      <div class="animal-grid" id="animalGrid"></div>
-    </div>
-  </div>
-
-  <div class="world-row">
-    <div class="world-panel" onclick="openShop('seeds')">
-      <span class="world-em">🌾</span>
-      <div class="world-nm">Seed Shop</div>
-      <div class="world-desc">Buy seeds to grow</div>
-    </div>
-    <div class="world-panel" onclick="openShop('animals')">
-      <span class="world-em">🐄</span>
-      <div class="world-nm">Animal Market</div>
-      <div class="world-desc">Buy farm animals</div>
-    </div>
-    <div class="world-panel" onclick="openShop('upgrades')">
-      <span class="world-em">⚡</span>
-      <div class="world-nm">Upgrades</div>
-      <div class="world-desc">Power up your farm</div>
+      <div class="panel-title">📈 Crop Economics <span style="font-size:12px;font-weight:600;color:#888;margin-left:4px">see profit margins</span></div>
+      <div id="cropInfoPanel">
+        <div class="learn-box">Select a crop to see investment & profit details!</div>
+      </div>
     </div>
   </div>
 
   <div class="shop-full">
-    <div class="panel-title">🏪 Quick Shop</div>
+    <div class="panel-title">🏪 Seed Shop (Economics)</div>
     <div class="shop-tabs" id="shopTabs">
-      <div class="shop-tab active" onclick="switchTab('seeds')">🌱 Seeds</div>
-      <div class="shop-tab" onclick="switchTab('animals')">🐾 Animals</div>
-      <div class="shop-tab" onclick="switchTab('upgrades')">⚡ Upgrades</div>
+      <div class="shop-tab active" onclick="switchTab('seeds')">🌱 All Seeds</div>
+      <div class="shop-tab" onclick="switchTab('profit')">📈 Best Profit</div>
+      <div class="shop-tab" onclick="switchTab('quick')">⚡ Quick Crops</div>
     </div>
     <div class="shop-grid" id="shopGrid"></div>
   </div>
@@ -280,34 +278,24 @@ const SFX_FILES = {
   plant:    'sounds/plant.mp3',
   water:    'sounds/water.mp3',
   harvest:  'sounds/harvest.mp3',
-  plow:     'sounds/plow.mp3',
   buy:      'sounds/buy.mp3',
-  collect:  'sounds/collect.mp3',
   levelup:  'sounds/levelup.mp3',
   nextday:  'sounds/nextday.mp3',
   rain:     'sounds/rain.mp3',
-  rainbow:  'sounds/rainbow.mp3',
   error:    'sounds/error.mp3',
-  upgrade:  'sounds/upgrade.mp3',
 };
 const VOICE_FILES = {
   welcome:  'sounds/voice_welcome.mp3',
   plant:    'sounds/voice_plant.mp3',
   water:    'sounds/voice_water.mp3',
   harvest:  'sounds/voice_harvest.mp3',
-  levelup:  'sounds/voice_levelup.mp3',
   nextday:  'sounds/voice_nextday.mp3',
   rain:     'sounds/voice_rain.mp3',
-  rainbow:  'sounds/voice_rainbow.mp3',
-  animal:   'sounds/voice_animal.mp3',
-  buy:      'sounds/voice_buy.mp3',
   nope:     'sounds/voice_nope.mp3',
-  upgrade:  'sounds/voice_upgrade.mp3',
 };
 const BGM_FILES = {
   day:     'sounds/bgm_day.mp3',
   rain:    'sounds/bgm_rain.mp3',
-  rainbow: 'sounds/bgm_rainbow.mp3',
 };
 
 let audioMuted = false;
@@ -331,7 +319,6 @@ function playSFX(key) {
 
 function playVoice(key) {
   if (audioMuted || !VOICE_FILES[key]) return;
-  // Small delay so sfx plays first
   setTimeout(() => {
     try {
       const a = new Audio(VOICE_FILES[key]);
@@ -365,40 +352,33 @@ function toggleAudio() {
 }
 
 // ===================== GAME DATA =====================
+// Economics-focused crops with cost & profit margin teaching
 const CROPS = [
-  {id:'carrot',name:'Carrot',emoji:'🥕',seedCost:2,days:2,reward:6},
-  {id:'corn',name:'Corn',emoji:'🌽',seedCost:3,days:3,reward:10},
-  {id:'strawberry',name:'Strawberry',emoji:'🍓',seedCost:4,days:2,reward:9},
-  {id:'sunflower',name:'Sunflower',emoji:'🌻',seedCost:5,days:4,reward:18},
-  {id:'watermelon',name:'Watermelon',emoji:'🍉',seedCost:6,days:5,reward:24},
-  {id:'tomato',name:'Tomato',emoji:'🍅',seedCost:3,days:3,reward:11},
-  {id:'pumpkin',name:'Pumpkin',emoji:'🎃',seedCost:7,days:5,reward:26},
-  {id:'grape',name:'Grape',emoji:'🍇',seedCost:8,days:6,reward:32},
-  {id:'apple',name:'Apple Tree',emoji:'🍎',seedCost:12,days:7,reward:40},
-];
-const ANIMALS_SHOP = [
-  {id:'chicken',name:'Chicken',emoji:'🐔',cost:10,product:'🥚',prodName:'Egg',reward:5,days:1},
-  {id:'cow',name:'Cow',emoji:'🐄',cost:20,product:'🥛',prodName:'Milk',reward:10,days:2},
-  {id:'sheep',name:'Sheep',emoji:'🐑',cost:15,product:'🧶',prodName:'Wool',reward:8,days:3},
-  {id:'pig',name:'Pig',emoji:'🐷',cost:12,product:'🥓',prodName:'Ham',reward:7,days:2},
-  {id:'duck',name:'Duck',emoji:'🦆',cost:14,product:'🪶',prodName:'Feather',reward:6,days:2},
-  {id:'rabbit',name:'Rabbit',emoji:'🐇',cost:16,product:'🍀',prodName:'Clover',reward:9,days:3},
-  {id:'horse',name:'Horse',emoji:'🐴',cost:35,product:'⭐',prodName:'Star',reward:18,days:4},
-  {id:'bee',name:'Beehive',emoji:'🐝',cost:18,product:'🍯',prodName:'Honey',reward:12,days:3},
-];
-const UPGRADES = [
-  {id:'watering',name:'Magic Can',emoji:'🪣',cost:25,desc:'Water 2 plots at once!'},
-  {id:'fert',name:'Super Soil',emoji:'🌿',cost:30,desc:'Crops grow 1 day faster!'},
-  {id:'barn',name:'Big Barn',emoji:'🏚️',cost:40,desc:'Hold 2 more animals!'},
-  {id:'plots',name:'+4 Plots',emoji:'🟫',cost:35,desc:'4 more farm plots!'},
+  {id:'carrot',name:'Carrot',emoji:'🥕',seedCost:5,waterCost:2,days:2,baseRevenue:15,margin:60},
+  {id:'lettuce',name:'Lettuce',emoji:'🥬',seedCost:4,waterCost:1,days:2,baseRevenue:12,margin:66},
+  {id:'corn',name:'Corn',emoji:'🌽',seedCost:8,waterCost:3,days:3,baseRevenue:25,margin:56},
+  {id:'strawberry',name:'Strawberry',emoji:'🍓',seedCost:6,waterCost:2,days:2,baseRevenue:18,margin:66},
+  {id:'sunflower',name:'Sunflower',emoji:'🌻',seedCost:10,waterCost:3,days:4,baseRevenue:35,margin:57},
+  {id:'tomato',name:'Tomato',emoji:'🍅',seedCost:7,waterCost:3,days:3,baseRevenue:24,margin:54},
+  {id:'watermelon',name:'Watermelon',emoji:'🍉',seedCost:12,waterCost:4,days:5,baseRevenue:45,margin:60},
+  {id:'pumpkin',name:'Pumpkin',emoji:'🎃',seedCost:14,waterCost:4,days:5,baseRevenue:50,margin:59},
+  {id:'apple',name:'Apple Tree',emoji:'🍎',seedCost:25,waterCost:2,days:7,baseRevenue:80,margin:57},
 ];
 
 let G = {
-  coins:30, score:0, day:1, level:1, xp:0,
-  tool:'seed', selectedCrop:CROPS[0],
-  plots:Array(8).fill(null).map(()=>({crop:null,watered:false,daysLeft:0,ready:false})),
-  animals:[], upgrades:[], shopTab:'seeds',
-  weather:'sunny', weatherBonus:1,
+  budget: 100,
+  initialBudget: 100,
+  totalProfit: 0,
+  totalInvestment: 0,
+  totalRevenue: 0,
+  harvestedCount: 0,
+  day: 1,
+  tool: 'plant',
+  selectedCrop: CROPS[0],
+  plots: Array(8).fill(null).map(()=>({crop:null,watered:false,daysLeft:0,ready:false,dayPlanted:0,wateringDays:0})),
+  weather: 'sunny',
+  weatherBonus: 1,
+  shopTab: 'seeds',
 };
 
 // ===================== VISUAL SETUP =====================
@@ -418,15 +398,6 @@ function makeSunRays() {
     const r=document.createElement('div'); r.className='sun-ray';
     r.style.cssText=`margin-left:-4px;transform:rotate(${i*45}deg) translateY(-36px)`;
     sun.appendChild(r);
-  }
-}
-function makeRain() {
-  const overlay=document.getElementById('rainOverlay'); overlay.innerHTML='';
-  for (let i=0;i<60;i++) {
-    const d=document.createElement('div'); d.className='raindrop';
-    const h=30+Math.random()*40;
-    d.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*-100}px;height:${h}px;animation-duration:${0.6+Math.random()*0.6}s;animation-delay:${Math.random()*1}s;opacity:${0.4+Math.random()*0.5}`;
-    overlay.appendChild(d);
   }
 }
 
@@ -450,7 +421,11 @@ function renderPlots() {
       lbl.textContent=p.ready?'✅ Ready!':p.crop.name;
       const bw=document.createElement('div'); bw.className='plot-bar-wrap';
       const bb=document.createElement('div'); bb.className='plot-bar'; bb.style.width=prog+'%';
-      bw.appendChild(bb); soil.appendChild(plant); soil.appendChild(lbl); soil.appendChild(bw);
+      bw.appendChild(bb);
+      const costLabel=document.createElement('div'); costLabel.className='plot-cost';
+      const totalCost = p.crop.seedCost + (p.wateringDays * p.crop.waterCost);
+      costLabel.textContent=`💰Cost: ${totalCost}`;
+      soil.appendChild(plant); soil.appendChild(lbl); soil.appendChild(bw); soil.appendChild(costLabel);
     } else {
       plant.className='plot-plant grow'; plant.textContent='🟫';
       plant.style.cssText='font-size:20px;opacity:0.6';
@@ -460,192 +435,215 @@ function renderPlots() {
     div.appendChild(soil); grid.appendChild(div);
   });
 }
-function renderAnimals() {
-  const grid=document.getElementById('animalGrid'); grid.innerHTML='';
-  if (!G.animals.length) { grid.innerHTML='<div class="empty-animal">🐾 Visit the Animal Market to buy your first animal!</div>'; return; }
-  G.animals.forEach((a,i)=>{
-    const div=document.createElement('div');
-    div.className='animal-card'+(a.ready?' ready':'');
-    div.onclick=()=>clickAnimal(i);
-    const prog=a.ready?100:Math.round((1-a.daysLeft/a.days)*100);
-    div.innerHTML=`<span class="animal-em">${a.emoji}</span><div class="animal-nm">${a.name}</div><div class="animal-status">${a.ready?a.product+' Collect!':a.daysLeft+'d left'}</div><div class="animal-bar-wrap"><div class="animal-bar" style="width:${prog}%"></div></div>`;
-    grid.appendChild(div);
-  });
-}
+
 function renderShop() {
   const grid=document.getElementById('shopGrid'); grid.innerHTML='';
   let items=[];
+  
   if (G.shopTab==='seeds') items=CROPS;
-  else if (G.shopTab==='animals') items=ANIMALS_SHOP.filter(a=>!G.animals.find(x=>x.id===a.id));
-  else items=UPGRADES.filter(u=>!G.upgrades.includes(u.id));
+  else if (G.shopTab==='profit') items=[...CROPS].sort((a,b)=>b.margin-a.margin);
+  else items=[...CROPS].filter(c=>c.days<=3).sort((a,b)=>a.days-b.days);
+  
   items.forEach((item)=>{
-    const cost=item.seedCost||item.cost;
-    const cant=G.coins<cost;
+    const cant=G.budget<item.seedCost;
     const div=document.createElement('div');
     div.className='shop-item'+(cant?' cant-afford':'');
-    div.onclick=()=>!cant&&buyItem(G.shopTab,item);
-    div.innerHTML=`<span class="si-em">${item.emoji}</span><div class="si-name">${item.name}</div><div class="si-cost">🪙${cost}</div>`;
+    div.onclick=()=>!cant&&selectCrop(item);
+    const margin = item.margin;
+    div.innerHTML=`<span class="si-em">${item.emoji}</span><div class="si-name">${item.name}</div><div class="si-cost">💰${item.seedCost}</div><div class="si-profit">📈Margin: ${margin}%</div>`;
     grid.appendChild(div);
   });
-  if (!items.length) grid.innerHTML='<div style="color:#9E9E9E;font-size:13px;padding:16px;text-align:center;grid-column:1/-1">You have everything! Amazing! 🎉</div>';
 }
+
 function renderStats() {
-  document.getElementById('coins').textContent=G.coins;
-  document.getElementById('score').textContent=G.score;
+  document.getElementById('budget').textContent=G.budget;
+  document.getElementById('profit').textContent=G.totalProfit;
   document.getElementById('day').textContent=G.day;
-  document.getElementById('level').textContent=G.level;
+  document.getElementById('harvests').textContent=G.harvestedCount;
+  
+  document.getElementById('totalInvestment').textContent=G.totalInvestment;
+  document.getElementById('totalRevenue').textContent=G.totalRevenue;
+  document.getElementById('netProfit').textContent=G.totalProfit;
 }
+
+function renderCropInfo() {
+  const crop = G.selectedCrop;
+  const panel = document.getElementById('cropInfoPanel');
+  const totalCost = crop.seedCost + (3 * crop.waterCost); // Example with 3 waterings
+  const profit = crop.baseRevenue - totalCost;
+  const roi = ((profit / totalCost) * 100).toFixed(0);
+  
+  panel.innerHTML=`
+    <div class="crop-detail">
+      <div style="font-weight:800;font-size:13px;margin-bottom:6px;color:#E65100">${crop.emoji} ${crop.name}</div>
+      <div class="crop-detail-row">
+        <span class="crop-detail-label">Seed Cost:</span>
+        <span class="crop-detail-value">-💰${crop.seedCost}</span>
+      </div>
+      <div class="crop-detail-row">
+        <span class="crop-detail-label">Water Cost (per day):</span>
+        <span class="crop-detail-value">💰${crop.waterCost}</span>
+      </div>
+      <div class="crop-detail-row">
+        <span class="crop-detail-label">Days to Harvest:</span>
+        <span class="crop-detail-value">${crop.days} days</span>
+      </div>
+      <div style="border-top:1px solid #FFD54F;margin:6px 0;padding-top:6px;">
+      <div class="crop-detail-row">
+        <span class="crop-detail-label">Sale Price:</span>
+        <span class="crop-detail-value" style="color:var(--profit)">+💰${crop.baseRevenue}</span>
+      </div>
+      <div class="crop-detail-row">
+        <span class="crop-detail-label">Profit Margin:</span>
+        <span class="crop-detail-value">${crop.margin}%</span>
+      </div>
+      <div class="crop-detail-row">
+        <span class="crop-detail-label">Est. Profit:</span>
+        <span class="crop-detail-value" style="color:var(--profit)">💰${profit}</span>
+      </div>
+      </div>
+    </div>
+    <div class="learn-box">💡 <strong>ROI Lesson:</strong> Return on Investment is ${roi}%. Higher ROI = better business decision!</div>
+  `;
+}
+
 function renderWeather() {
   const weathers={
     sunny:'☀️ <strong>Sunny!</strong> — Great farming weather!',
     rainy:'🌧️ <strong>Rainy!</strong> — All plots watered automatically!',
-    windy:'🌬️ <strong>Windy!</strong> — Crops grow a bit slower.',
     cloudy:'⛅ <strong>Cloudy</strong> — Normal growing day.',
-    rainbow:'🌈 <strong>Rainbow Day!</strong> — Double coin rewards!',
   };
   document.getElementById('weatherBar').innerHTML=(weathers[G.weather]||weathers.sunny)+
-    `<span style="margin-left:auto;font-size:12px;color:#888">Tool: <strong id="toolLabel">${G.tool.toUpperCase()}</strong></span>`;
-  // rain FX
-  const overlay=document.getElementById('rainOverlay');
-  if (G.weather==='rainy') { overlay.style.display='block'; makeRain(); }
-  else overlay.style.display='none';
-  // BGM
-  if (G.weather==='rainy') playBGM('rain');
-  else if (G.weather==='rainbow') playBGM('rainbow');
-  else playBGM('day');
+    `<span style="margin-left:auto;font-size:12px;color:#888">💡 Track costs & revenue carefully!</span>`;
 }
-function renderAll() { renderPlots(); renderAnimals(); renderShop(); renderStats(); renderWeather(); }
+
+function renderAll() { 
+  renderPlots(); 
+  renderShop(); 
+  renderStats(); 
+  renderWeather();
+  renderCropInfo();
+}
 
 // ===================== INTERACTIONS =====================
 function setTool(t) {
   G.tool=t;
-  ['seed','water','harvest','plow'].forEach(b=>{
+  ['plant','water','harvest'].forEach(b=>{
     const el=document.getElementById('tb-'+b);
     if (el) el.classList.toggle('active',b===t);
   });
   const msgs={
-    seed:`🌱 Plant tool! Click a plot to plant ${G.selectedCrop.emoji} ${G.selectedCrop.name}!`,
-    water:'💧 Watering can! Click planted plots to water them!',
-    harvest:'🌾 Harvest tool! Click glowing plots when they\'re ready!',
-    plow:'⛏️ Plow tool! Prepare empty plots for planting!'
+    plant:`🌱 Plant tool! Click a plot to plant ${G.selectedCrop.emoji} ${G.selectedCrop.name} (costs 💰${G.selectedCrop.seedCost})!`,
+    water:'💧 Watering can! Click planted plots to water them (costs 💰per watering)!',
+    harvest:'🌾 Harvest tool! Click glowing plots when ready to collect revenue!'
   };
   msg(msgs[t]||'');
-  const tl=document.getElementById('toolLabel');
-  if (tl) tl.textContent=t.toUpperCase();
+}
+
+function selectCrop(crop) {
+  G.selectedCrop=crop;
+  setTool('plant');
+  msg(`🌱 Selected ${crop.emoji} ${crop.name}! Investment: 💰${crop.seedCost}. Click a plot to plant!`);
+  playSFX('buy');
+  renderCropInfo();
 }
 
 function clickPlot(i) {
   const p=G.plots[i];
-  if (G.tool==='seed') {
-    if (p.crop) { msg('⚠️ There\'s already something growing here!'); playSFX('error'); return; }
+  if (G.tool==='plant') {
+    if (p.crop) { msg('⚠️ Already planted! Harvest or plow first.'); playSFX('error'); return; }
     const cost=G.selectedCrop.seedCost;
-    if (G.coins<cost) { msg(`😢 Need 🪙${cost} to plant ${G.selectedCrop.name}!`); playSFX('error'); playVoice('nope'); return; }
-    G.coins-=cost;
+    if (G.budget<cost) { msg(`😢 Budget insufficient! Need 💰${cost} but have 💰${G.budget}!`); playSFX('error'); playVoice('nope'); return; }
+    G.budget-=cost;
+    G.totalInvestment+=cost;
     let days=G.selectedCrop.days;
-    if (G.upgrades.includes('fert')) days=Math.max(1,days-1);
-    p.crop={...G.selectedCrop}; p.daysLeft=days; p.watered=false; p.ready=false;
-    msg(`🌱 Planted ${G.selectedCrop.emoji} ${G.selectedCrop.name}! Water it to help it grow fast!`);
-    playSFX('plant'); playVoice('plant');
-    spawnCoins(-cost,i,true); addXP(2);
+    p.crop={...G.selectedCrop}; 
+    p.daysLeft=days; 
+    p.watered=false; 
+    p.ready=false;
+    p.dayPlanted=G.day;
+    p.wateringDays=0;
+    msg(`🌱 Planted ${G.selectedCrop.emoji} ${G.selectedCrop.name}! Investment: 💰${cost}. Water to speed growth!`);
+    playSFX('plant'); 
+    playVoice('plant');
+    spawnCoins(-cost,i,true);
   } else if (G.tool==='water') {
-    if (!p.crop) { msg('🌱 No crop here! Plant a seed first.'); playSFX('error'); return; }
-    if (p.ready) { msg('✅ This crop is ready! Use the harvest tool!'); return; }
-    if (p.watered) { msg('💧 Already watered today! Come back tomorrow.'); playSFX('error'); return; }
+    if (!p.crop) { msg('🌱 No crop! Plant first.'); playSFX('error'); return; }
+    if (p.ready) { msg('✅ Ready to harvest! Use harvest tool.'); return; }
+    if (p.watered) { msg('💧 Already watered today!'); playSFX('error'); return; }
+    const waterCost = p.crop.waterCost;
+    if (G.budget<waterCost) { msg(`😢 Can't afford water! Need 💰${waterCost}`); playSFX('error'); playVoice('nope'); return; }
+    G.budget-=waterCost;
+    G.totalInvestment+=waterCost;
     p.watered=true;
-    showWaterDrops(i); playSFX('water'); playVoice('water');
-    msg(`💧 Watered ${p.crop.emoji} ${p.crop.name}! It\'s happy!`);
-    addXP(1);
+    p.wateringDays++;
+    showWaterDrops(i); 
+    playSFX('water'); 
+    playVoice('water');
+    msg(`💧 Watered ${p.crop.emoji}! Cost: 💰${waterCost}. Growing faster!`);
   } else if (G.tool==='harvest') {
     if (!p.ready) {
-      if (!p.crop) msg('🌱 Nothing here! Plant something first.');
-      else msg(`⏳ ${p.crop.emoji} ${p.crop.name} needs ${p.daysLeft} more day(s)!`);
+      if (!p.crop) msg('🌱 Nothing here!');
+      else msg(`⏳ Needs ${p.daysLeft} more day(s)!`);
       playSFX('error'); return;
     }
-    const bonus=G.weather==='rainbow'?2:G.weatherBonus;
-    const earned=Math.round(p.crop.reward*bonus);
-    G.coins+=earned; G.score+=earned;
-    msg(`🎉 Harvested ${p.crop.emoji} ${p.crop.name}! +🪙${earned}!`);
-    playSFX('harvest'); playVoice('harvest');
-    spawnCoins(earned,i); starBurst(i);
-    G.plots[i]={crop:null,watered:false,daysLeft:0,ready:false};
-    addXP(5); bumpStat('coins');
-  } else if (G.tool==='plow') {
-    if (p.crop) { msg('🌱 Can\'t plow while something is growing!'); playSFX('error'); return; }
-    playSFX('plow');
-    msg('⛏️ Plot plowed and ready for planting!');
-  }
-  renderAll();
-}
-
-function clickAnimal(i) {
-  const a=G.animals[i];
-  if (!a.ready) { msg(`${a.emoji} ${a.name} is growing — ${a.daysLeft} day(s) until ${a.product}!`); return; }
-  const bonus=G.weather==='rainbow'?2:1;
-  const earned=a.reward*bonus;
-  G.coins+=earned; G.score+=earned;
-  msg(`🎉 ${a.name} gave you ${a.product} ${a.prodName}! +🪙${earned}!`);
-  playSFX('collect'); playVoice('animal');
-  spawnCoinsAt(document.querySelector(`#animalGrid .animal-card:nth-child(${i+1})`),earned);
-  a.ready=false; a.daysLeft=a.days;
-  addXP(4); bumpStat('coins'); renderAll();
-}
-
-function buyItem(tab, item) {
-  if (tab==='seeds') {
-    G.selectedCrop=item; setTool('seed');
-    msg(`🌱 Selected ${item.emoji} ${item.name}! Click a plot to plant it.`);
-    playSFX('buy');
-  } else if (tab==='animals') {
-    if (G.coins<item.cost) { msg(`😢 Need 🪙${item.cost} to buy ${item.name}!`); playSFX('error'); playVoice('nope'); return; }
-    G.coins-=item.cost;
-    G.animals.push({...item,ready:false,daysLeft:item.days});
-    msg(`🐾 You got a ${item.emoji} ${item.name}! Check back in ${item.days} day(s)!`);
-    playSFX('buy'); playVoice('buy'); addXP(8); bumpStat('coins');
-  } else if (tab==='upgrades') {
-    if (G.coins<item.cost) { msg(`😢 Need 🪙${item.cost} for ${item.name}!`); playSFX('error'); playVoice('nope'); return; }
-    G.coins-=item.cost; G.upgrades.push(item.id);
-    if (item.id==='plots') for (let n=0;n<4;n++) G.plots.push({crop:null,watered:false,daysLeft:0,ready:false});
-    msg(`⚡ Unlocked ${item.emoji} ${item.name}! ${item.desc}`);
-    playSFX('upgrade'); playVoice('upgrade'); addXP(10); bumpStat('coins');
+    const bonus=G.weather==='rainy'?1.1:G.weatherBonus;
+    const earned=Math.round(p.crop.baseRevenue*bonus);
+    const totalCost = p.crop.seedCost + (p.wateringDays * p.crop.waterCost);
+    const cropProfit = earned - totalCost;
+    
+    G.budget+=earned;
+    G.totalRevenue+=earned;
+    G.totalProfit=G.totalRevenue-G.totalInvestment;
+    G.harvestedCount++;
+    
+    msg(`🎉 Sold for 💰${earned}! Profit: 💰${cropProfit} (Revenue - Investment)`);
+    playSFX('harvest'); 
+    playVoice('harvest');
+    spawnCoins(earned,i);
+    starBurst(i);
+    G.plots[i]={crop:null,watered:false,daysLeft:0,ready:false,dayPlanted:0,wateringDays:0};
   }
   renderAll();
 }
 
 function switchTab(tab) {
   G.shopTab=tab;
-  document.querySelectorAll('.shop-tab').forEach((t,i)=>t.classList.toggle('active',['seeds','animals','upgrades'][i]===tab));
+  document.querySelectorAll('.shop-tab').forEach((t,i)=>t.classList.toggle('active',['seeds','profit','quick'][i]===tab));
   renderShop();
 }
 
 function nextDay() {
   G.day++;
-  const weathers=['sunny','sunny','rainy','cloudy','windy','rainbow'];
+  const weathers=['sunny','sunny','rainy','cloudy'];
   G.weather=weathers[Math.floor(Math.random()*weathers.length)];
-  G.weatherBonus=G.weather==='rainbow'?2:1;
+  
   let events=[];
   G.plots.forEach(p=>{
     if (p.crop&&!p.ready) {
       let grow=p.watered?1:0;
       if (G.weather==='rainy'){grow=1;p.watered=true;}
-      if (G.weather==='windy') grow=0.5;
-      p.daysLeft=Math.max(0,p.daysLeft-grow); p.watered=false;
-      if (p.daysLeft<=0){p.ready=true;p.daysLeft=0;events.push(`${p.crop.emoji} ${p.crop.name} is ready!`);}
+      p.daysLeft=Math.max(0,p.daysLeft-grow); 
+      p.watered=false;
+      if (p.daysLeft<=0){p.ready=true;p.daysLeft=0;events.push(`${p.crop.emoji} Ready!`);}
     }
   });
-  G.animals.forEach(a=>{
-    if (!a.ready){a.daysLeft=Math.max(0,a.daysLeft-1);if(a.daysLeft<=0){a.ready=true;a.daysLeft=0;events.push(`${a.emoji} ${a.name} has ${a.product}!`);}}
-  });
-  if (G.weather==='rainy'){events.unshift('🌧️ Rain watered all your crops!'); playSFX('rain'); playVoice('rain');}
-  if (G.weather==='rainbow'){events.unshift('🌈 Rainbow Day — double rewards!'); playSFX('rainbow'); playVoice('rainbow');}
-  playSFX('nextday'); playVoice('nextday');
-  const greeting=['Good morning! ☀️','Rise and shine! 🌅','A new day begins! 🌄','Wake up, farmer! 🐓'][Math.floor(Math.random()*4)];
+  if (G.weather==='rainy'){events.unshift('🌧️ Rain saved water costs!'); playSFX('rain'); playVoice('rain');}
+  
+  playSFX('nextday'); 
+  playVoice('nextday');
+  const greetings=['Good morning! ☀️','Rise and shine! 🌅','New day! 🌄'];
+  const greeting=greetings[Math.floor(Math.random()*greetings.length)];
+  
   if (events.length>0){
-    msg(`${greeting} ${events.slice(0,2).join(' ')}`+(events.length>2?` +${events.length-2} more!`:''));
+    msg(`${greeting} ${events.join(' ')}`);
     events.forEach(e=>showNotif(e));
   } else {
-    msg(`${greeting} Day ${G.day} started! Water your crops!`);
+    msg(`${greeting} Day ${G.day}! Plant wisely - watch your budget!`);
   }
-  bumpStat('day'); renderAll();
+  
+  bumpStat('day'); 
+  renderAll();
 }
 
 // ===================== FX =====================
@@ -656,17 +654,10 @@ function spawnCoins(amount, plotIdx, negative=false) {
   const pop=document.createElement('div'); pop.className='coin-pop';
   pop.style.left=(r.left+r.width/2-20)+'px'; pop.style.top=(r.top+window.scrollY-10)+'px';
   pop.style.color=negative?'#E53935':'#FFD600';
-  pop.textContent=(negative?'-':'+')+' 🪙'+Math.abs(amount);
+  pop.textContent=(negative?'-':'+')+' 💰'+Math.abs(amount);
   document.body.appendChild(pop); setTimeout(()=>pop.remove(),1300);
 }
-function spawnCoinsAt(el, amount) {
-  if (!el) return;
-  const r=el.getBoundingClientRect();
-  const pop=document.createElement('div'); pop.className='coin-pop';
-  pop.style.left=(r.left+r.width/2-20)+'px'; pop.style.top=(r.top+window.scrollY-10)+'px';
-  pop.textContent='+🪙'+amount;
-  document.body.appendChild(pop); setTimeout(()=>pop.remove(),1300);
-}
+
 function showWaterDrops(idx) {
   const el=document.querySelectorAll('#plotGrid .plot')[idx]; if (!el) return;
   const wrap=document.createElement('div'); wrap.className='water-drops';
@@ -677,11 +668,12 @@ function showWaterDrops(idx) {
   }
   el.querySelector('.plot-soil')?.appendChild(wrap); setTimeout(()=>wrap.remove(),900);
 }
+
 function starBurst(plotIdx) {
   const el=document.querySelectorAll('#plotGrid .plot')[plotIdx]; if (!el) return;
   const r=el.getBoundingClientRect();
   const cx=r.left+r.width/2, cy=r.top+r.height/2+window.scrollY;
-  const stars=['⭐','✨','🌟','💫'];
+  const stars=['⭐','✨','🌟'];
   for (let i=0;i<6;i++){
     const s=document.createElement('div'); s.className='star';
     const angle=(i/6)*Math.PI*2, dist=40+Math.random()*30;
@@ -692,41 +684,32 @@ function starBurst(plotIdx) {
     document.body.appendChild(s); setTimeout(()=>s.remove(),900);
   }
 }
+
 function showNotif(text) {
   const n=document.createElement('div'); n.className='notif'; n.textContent=text;
   document.body.appendChild(n);
   setTimeout(()=>{n.classList.add('out');setTimeout(()=>n.remove(),350);},3000);
 }
+
 function bumpStat(id) {
   const el=document.getElementById('stat-'+id); if (!el) return;
   el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
   setTimeout(()=>el.classList.remove('bump'),400);
 }
-function addXP(amt) {
-  G.xp+=amt;
-  const needed=G.level*20;
-  if (G.xp>=needed){
-    G.xp-=needed; G.level++;
-    showNotif('🏅 Level Up! Now Level '+G.level+'!');
-    playSFX('levelup'); playVoice('levelup'); bumpStat('lvl');
-  }
-}
+
 function msg(text) {
   const el=document.getElementById('msgbox'); el.textContent=text;
   el.style.animation='none'; void el.offsetWidth; el.style.animation='msgSlide 0.3s ease';
 }
-function openShop(type) {
-  G.shopTab=type; switchTab(type);
-  document.querySelector('.shop-full').scrollIntoView({behavior:'smooth',block:'center'});
-}
 
 // ===================== INIT =====================
-makeClouds(); makeSunRays();
-setTool('seed'); renderAll();
+makeClouds(); 
+makeSunRays();
+setTool('plant'); 
+renderAll();
 
-// Welcome voice plays on first user interaction (browser autoplay policy)
 document.body.addEventListener('click', ()=>{ playBGM('day'); playVoice('welcome'); }, {once:true});
-msg('👋 Welcome to Happy Farm! Select a crop from the shop, then click the soil to plant it!');
+msg('👋 Welcome to Farm Economics! Make smart planting decisions to maximize profit. Budget: 💰100');
 </script>
 </body>
 </html>
